@@ -5,14 +5,14 @@ import java.net.Socket;
 
 public class HttpClient {
     public static void main(String[] args) throws IOException, InterruptedException {
-        Request request = getRequest(args);
+        ProgramArguments programArguments = getRequest(args);
 
-        try (Socket socket = new Socket(request.getRemoteHost(), request.getRemotePort());
+        try (Socket socket = new Socket(programArguments.getRemoteHost(), programArguments.getRemotePort());
              PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            writer.println("GET " + request.getUri() + " HTTP/1.1");
-            writer.println("Host: " + request.getRemoteHost() + ":" + request.getRemotePort());
+            writer.println("GET " + programArguments.getUri() + " HTTP/1.1");
+            writer.println("Host: " + programArguments.getRemoteHost() + ":" + programArguments.getRemotePort());
             writer.println("Connection: Close");
             writer.println();
 
@@ -33,8 +33,8 @@ public class HttpClient {
         }
     }
 
-    private static Request getRequest(String... args) {
-        Request request = new Request();
+    private static ProgramArguments getRequest(String... args) {
+        ProgramArguments programArguments = new ProgramArguments();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
             if (arg == null) {
@@ -45,17 +45,17 @@ public class HttpClient {
 
                 switch (arg) {
                     case "--host":
-                        request.setRemoteHost(value);
+                        programArguments.setRemoteHost(value);
                         break;
                     case "--port":
-                        request.setRemotePort(Integer.valueOf(value));
+                        programArguments.setRemotePort(Integer.valueOf(value));
                         break;
                     case "--uri":
-                        request.setUri(value);
+                        programArguments.setUri(value);
                         break;
                 }
             }
         }
-        return request;
+        return programArguments;
     }
 }

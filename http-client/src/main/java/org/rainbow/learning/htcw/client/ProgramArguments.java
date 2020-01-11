@@ -1,31 +1,31 @@
 package org.rainbow.learning.htcw.client;
 
-public class Request {
+class ProgramArguments {
     private String remoteHost;
     private int remotePort;
     private String uri;
 
-    public String getRemoteHost() {
+    String getRemoteHost() {
         return remoteHost;
     }
 
-    public void setRemoteHost(String remoteHost) {
+    void setRemoteHost(String remoteHost) {
         this.remoteHost = remoteHost;
     }
 
-    public int getRemotePort() {
+    int getRemotePort() {
         return remotePort;
     }
 
-    public void setRemotePort(int remotePort) {
+    void setRemotePort(int remotePort) {
         this.remotePort = remotePort;
     }
 
-    public String getUri() {
+    String getUri() {
         return uri;
     }
 
-    public void setUri(String uri) {
+    void setUri(String uri) {
         this.uri = uri;
     }
 }

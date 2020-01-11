@@ -1,3 +1,5 @@
 .idea
-target
 *.iml
+http-client/target
+servlet-app/target
+servlet-container/target
