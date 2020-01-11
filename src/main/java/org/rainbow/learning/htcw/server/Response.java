@@ -1,11 +1,15 @@
 package org.rainbow.learning.htcw.server;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletResponse;
 import java.io.*;
+import java.util.Locale;
 
-public class Response {
+public class Response implements ServletResponse {
     private static final int BUFFER_SIZE = 1024;
     private Request request;
     private OutputStream outputStream;
+    private PrintWriter writer;
 
     public Response(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -19,7 +23,7 @@ public class Response {
         byte[] bytes = new byte[BUFFER_SIZE];
         FileInputStream fis = null;
         try {
-            File file = new File(HttpServer.WEB_ROOT, request.getUri());
+            File file = new File(Constants.WEB_ROOT, request.getUri());
             if (file.exists()) {
                 String header = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/html\r\n" +
@@ -51,5 +55,87 @@ public class Response {
                 fis.close();
             }
         }
+    }
+
+    @Override
+    public String getCharacterEncoding() {
+        return null;
+    }
+
+    @Override
+    public String getContentType() {
+        return null;
+    }
+
+    @Override
+    public ServletOutputStream getOutputStream() throws IOException {
+        return null;
+    }
+
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        if (writer == null)
+            writer = new PrintWriter(outputStream, true);
+        return writer;
+    }
+
+    @Override
+    public void setCharacterEncoding(String s) {
+
+    }
+
+    @Override
+    public void setContentLength(int i) {
+
+    }
+
+    @Override
+    public void setContentLengthLong(long l) {
+
+    }
+
+    @Override
+    public void setContentType(String s) {
+
+    }
+
+    @Override
+    public void setBufferSize(int i) {
+
+    }
+
+    @Override
+    public int getBufferSize() {
+        return 0;
+    }
+
+    @Override
+    public void flushBuffer() throws IOException {
+
+    }
+
+    @Override
+    public void resetBuffer() {
+
+    }
+
+    @Override
+    public boolean isCommitted() {
+        return false;
+    }
+
+    @Override
+    public void reset() {
+
+    }
+
+    @Override
+    public void setLocale(Locale locale) {
+
+    }
+
+    @Override
+    public Locale getLocale() {
+        return null;
     }
 }
