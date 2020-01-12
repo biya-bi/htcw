@@ -1,5 +1,10 @@
-package org.rainbow.learning.catalina;
+package org.rainbow.catalina.http;
 
+import org.rainbow.catalina.loaders.LibraryLoader;
+import org.rainbow.catalina.processors.ServletProcessor;
+import org.rainbow.catalina.servlet.Request;
+import org.rainbow.catalina.servlet.Response;
+import org.rainbow.catalina.processors.StaticResourceProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

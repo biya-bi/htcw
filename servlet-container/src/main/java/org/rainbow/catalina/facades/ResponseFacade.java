@@ -1,6 +1,6 @@
-package org.rainbow.learning.catalina.facades;
+package org.rainbow.catalina.facades;
 
-import org.rainbow.learning.catalina.Response;
+import org.rainbow.catalina.servlet.Response;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;

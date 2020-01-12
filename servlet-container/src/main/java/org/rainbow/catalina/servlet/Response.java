@@ -1,4 +1,6 @@
-package org.rainbow.learning.catalina;
+package org.rainbow.catalina.servlet;
+
+import org.rainbow.catalina.util.Constants;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;

@@ -1,204 +1,246 @@
-package org.rainbow.learning.catalina.facades;
+package org.rainbow.catalina.servlet;
 
-import org.rainbow.learning.catalina.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-public class RequestFacade implements ServletRequest {
-    private ServletRequest request;
+public class Request implements ServletRequest {
+    private static final Logger logger = LoggerFactory.getLogger(Request.class);
 
-    public RequestFacade(Request request) {
-        this.request = request;
+    private InputStream inputStream;
+    private String uri;
+
+    public Request(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public void parse() {
+        // Read a set of characters from the socket
+        StringBuffer stringBuffer = new StringBuffer(2048);
+        int i;
+        byte[] buffer = new byte[2048];
+        try {
+            i = inputStream.read(buffer);
+        } catch (IOException e) {
+            logger.error("An unexpected error occurred.", e);
+            i = -1;
+        }
+
+        for (int j = 0; j < i; j++) {
+            stringBuffer.append((char) buffer[j]);
+        }
+
+        logger.info("The below request will be processed:\r\n{}", stringBuffer.toString());
+
+        uri = extractUri(stringBuffer.toString());
+    }
+
+    private String extractUri(String requestString) {
+        int index1, index2;
+        index1 = requestString.indexOf(' ');
+        if (index1 != -1) {
+            index2 = requestString.indexOf(' ', index1 + 1);
+            if (index2 > index1) {
+                return requestString.substring(index1 + 1, index2);
+            }
+        }
+        return null;
+    }
+
+    public String getUri() {
+        return uri;
     }
 
     @Override
     public Object getAttribute(String s) {
-        return request.getAttribute(s);
+        return null;
     }
 
     @Override
     public Enumeration<String> getAttributeNames() {
-        return request.getAttributeNames();
+        return null;
     }
 
     @Override
     public String getCharacterEncoding() {
-        return request.getCharacterEncoding();
+        return null;
     }
 
     @Override
     public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
-        request.setCharacterEncoding(s);
+
     }
 
     @Override
     public int getContentLength() {
-        return request.getContentLength();
+        return 0;
     }
 
     @Override
     public long getContentLengthLong() {
-        return request.getContentLengthLong();
+        return 0;
     }
 
     @Override
     public String getContentType() {
-        return request.getContentType();
+        return null;
     }
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        return request.getInputStream();
+        return null;
     }
 
     @Override
     public String getParameter(String s) {
-        return request.getParameter(s);
+        return null;
     }
 
     @Override
     public Enumeration<String> getParameterNames() {
-        return request.getParameterNames();
+        return null;
     }
 
     @Override
     public String[] getParameterValues(String s) {
-        return request.getParameterValues(s);
+        return new String[0];
     }
 
     @Override
     public Map<String, String[]> getParameterMap() {
-        return request.getParameterMap();
+        return null;
     }
 
     @Override
     public String getProtocol() {
-        return request.getProtocol();
+        return null;
     }
 
     @Override
     public String getScheme() {
-        return request.getScheme();
+        return null;
     }
 
     @Override
     public String getServerName() {
-        return request.getServerName();
+        return null;
     }
 
     @Override
     public int getServerPort() {
-        return request.getServerPort();
+        return 0;
     }
 
     @Override
     public BufferedReader getReader() throws IOException {
-        return request.getReader();
+        return null;
     }
 
     @Override
     public String getRemoteAddr() {
-        return request.getRemoteAddr();
+        return null;
     }
 
     @Override
     public String getRemoteHost() {
-        return request.getRemoteHost();
+        return null;
     }
 
     @Override
     public void setAttribute(String s, Object o) {
-        request.setAttribute(s, o);
+
     }
 
     @Override
     public void removeAttribute(String s) {
-        request.removeAttribute(s);
+
     }
 
     @Override
     public Locale getLocale() {
-        return request.getLocale();
+        return null;
     }
 
     @Override
     public Enumeration<Locale> getLocales() {
-        return request.getLocales();
+        return null;
     }
 
     @Override
     public boolean isSecure() {
-        return request.isSecure();
+        return false;
     }
 
     @Override
     public RequestDispatcher getRequestDispatcher(String s) {
-        return request.getRequestDispatcher(s);
+        return null;
     }
 
     @Override
     public String getRealPath(String s) {
-        return request.getRealPath(s);
+        return null;
     }
 
     @Override
     public int getRemotePort() {
-        return request.getRemotePort();
+        return 0;
     }
 
     @Override
     public String getLocalName() {
-        return request.getLocalName();
+        return null;
     }
 
     @Override
     public String getLocalAddr() {
-        return request.getLocalAddr();
+        return null;
     }
 
     @Override
     public int getLocalPort() {
-        return request.getLocalPort();
+        return 0;
     }
 
     @Override
     public ServletContext getServletContext() {
-        return request.getServletContext();
+        return null;
     }
 
     @Override
     public AsyncContext startAsync() throws IllegalStateException {
-        return request.startAsync();
+        return null;
     }
 
     @Override
     public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
-        return request.startAsync(servletRequest, servletResponse);
+        return null;
     }
 
     @Override
     public boolean isAsyncStarted() {
-        return request.isAsyncStarted();
+        return false;
     }
 
     @Override
     public boolean isAsyncSupported() {
-        return request.isAsyncSupported();
+        return false;
     }
 
     @Override
     public AsyncContext getAsyncContext() {
-        return request.getAsyncContext();
+        return null;
     }
 
     @Override
     public DispatcherType getDispatcherType() {
-        return request.getDispatcherType();
+        return null;
     }
 }

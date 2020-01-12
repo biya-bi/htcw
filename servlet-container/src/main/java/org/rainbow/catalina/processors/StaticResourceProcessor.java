@@ -1,5 +1,7 @@
-package org.rainbow.learning.catalina;
+package org.rainbow.catalina.processors;
 
+import org.rainbow.catalina.servlet.Request;
+import org.rainbow.catalina.servlet.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
