@@ -1,5 +1,7 @@
 package org.rainbow.learning.catalina;
 
+import org.rainbow.learning.catalina.facades.RequestFacade;
+import org.rainbow.learning.catalina.facades.ResponseFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +21,13 @@ public class ServletProcessor {
     public void process(Request request, Response response) {
         try {
             Class servletClass = loadServlet(request.getUri());
+
             Servlet servlet = (Servlet) servletClass.newInstance();
-            servlet.service((ServletRequest) request, (ServletResponse) response);
+
+            RequestFacade requestFacade = new RequestFacade(request);
+            ResponseFacade responseFacade = new ResponseFacade(response);
+
+            servlet.service((ServletRequest) requestFacade, (ServletResponse) responseFacade);
         } catch (IllegalAccessException | InstantiationException | ServletException | IOException | ClassNotFoundException e) {
             logger.error("An expected error occurred while processing a request.", e);
         }
