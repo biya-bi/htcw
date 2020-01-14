@@ -3,3 +3,14 @@
 http-client/target
 servlet-app/target
 servlet-container/target
+.project
+.settings/
+http-client/.classpath
+http-client/.project
+http-client/.settings/
+servlet-app/.classpath
+servlet-app/.project
+servlet-app/.settings/
+servlet-container/.classpath
+servlet-container/.project
+servlet-container/.settings/
