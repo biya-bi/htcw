@@ -1,6 +1,6 @@
 package org.rainbow.catalina.loaders;
 
-import org.rainbow.catalina.util.Constants;
+import org.rainbow.catalina.connector.http.Constants;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;

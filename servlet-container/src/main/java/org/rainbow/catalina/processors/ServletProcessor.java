@@ -1,10 +1,10 @@
 package org.rainbow.catalina.processors;
 
-import org.rainbow.catalina.servlet.Request;
-import org.rainbow.catalina.facades.RequestFacade;
-import org.rainbow.catalina.facades.ResponseFacade;
-import org.rainbow.catalina.servlet.Response;
-import org.rainbow.catalina.util.Constants;
+import org.rainbow.catalina.connector.http.HttpRequest;
+import org.rainbow.catalina.connector.http.HttpResponse;
+import org.rainbow.catalina.connector.http.facades.HttpRequestFacade;
+import org.rainbow.catalina.connector.http.Constants;
+import org.rainbow.catalina.connector.http.facades.HttpResponseFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,16 +21,17 @@ import java.net.URLStreamHandler;
 public class ServletProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ServletProcessor.class);
 
-    public void process(Request request, Response response) {
+    public void process(HttpRequest request, HttpResponse response) {
         try {
-            Class servletClass = loadServlet(request.getUri());
+            Class servletClass = loadServlet(request.getRequestURI());
 
             Servlet servlet = (Servlet) servletClass.newInstance();
 
-            RequestFacade requestFacade = new RequestFacade(request);
-            ResponseFacade responseFacade = new ResponseFacade(response);
+            HttpRequestFacade requestFacade = new HttpRequestFacade(request);
+            HttpResponseFacade responseFacade = new HttpResponseFacade(response);
 
             servlet.service((ServletRequest) requestFacade, (ServletResponse) responseFacade);
+            ((HttpResponse) response).finishResponse();
         } catch (IllegalAccessException | InstantiationException | ServletException | IOException | ClassNotFoundException e) {
             logger.error("An expected error occurred while processing a request.", e);
         }

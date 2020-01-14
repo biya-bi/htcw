@@ -1,4 +1,4 @@
-package org.rainbow.catalina.util;
+package org.rainbow.catalina.connector.http;
 
 import java.io.File;
 
@@ -7,4 +7,5 @@ public class Constants {
 
     public static final String WEB_ROOT = WORKING_DIR + File.separator + "webroot";
     public static final String LIB_DIR = WORKING_DIR + File.separator + "lib";
+    public static final String PACKAGE = "org.rainbow.catalina.connector.http";
 }

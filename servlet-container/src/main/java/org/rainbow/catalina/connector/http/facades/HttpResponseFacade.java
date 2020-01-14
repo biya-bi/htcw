@@ -1,6 +1,6 @@
-package org.rainbow.catalina.facades;
+package org.rainbow.catalina.connector.http.facades;
 
-import org.rainbow.catalina.servlet.Response;
+import org.rainbow.catalina.connector.http.HttpResponse;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;
@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 
-public class ResponseFacade implements ServletResponse {
+public class HttpResponseFacade implements ServletResponse {
     private ServletResponse response;
 
-    public ResponseFacade(Response response) {
+    public HttpResponseFacade(HttpResponse response) {
         this.response = response;
     }
 

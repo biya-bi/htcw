@@ -22,18 +22,19 @@ public class PrimitiveServlet implements Servlet {
         PrintWriter writer = servletResponse.getWriter();
 
         String line1 = "Hello, Roses are red.";
+        String line2 = "Violets are blue.";
 
         // We add 2 to account for the CRLF (\r\n) that will be printed in the stream after the header.
-        int contentLength = line1.length() + 2;
+        int contentLength = line1.length() + line2.length() + 2;
 
-        String header = "HTTP/1.1 200 OK\r\n" +
-                "Content-Type: text/html\r\n" +
-                "Content-Length: " + contentLength + "\r\n";
+        writer.println("HTTP/1.1 200 OK");
+        writer.println("Content-Type: text/html");
+        writer.println(String.format("Content-Length: {0}", contentLength));
 
-        writer.println(header);
         writer.println();
+
         writer.println(line1);
-        writer.print("Violets are blue.");
+        writer.print(line2);
     }
 
     @Override
