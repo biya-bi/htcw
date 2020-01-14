@@ -26,7 +26,7 @@ public class HttpClient {
                     }
                     break;
                 }
-                Thread.currentThread().sleep(50);
+                Thread.sleep(50);
             }
 
             System.out.println(sb.toString());
