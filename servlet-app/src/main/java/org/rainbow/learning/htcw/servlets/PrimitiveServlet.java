@@ -29,7 +29,7 @@ public class PrimitiveServlet implements Servlet {
 
         writer.println("HTTP/1.1 200 OK");
         writer.println("Content-Type: text/html");
-        writer.println(String.format("Content-Length: {0}", contentLength));
+        writer.println(String.format("Content-Length: %s", contentLength));
 
         writer.println();
 

@@ -1,6 +1,7 @@
 package org.rainbow.catalina.startup;
 
 import org.rainbow.catalina.connector.http.HttpConnector;
+import org.rainbow.catalina.core.SimpleContainer;
 import org.rainbow.catalina.loaders.LibraryLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,11 @@ public final class Bootstrap {
 
 	public static void main(String[] args) {
 		HttpConnector connector = new HttpConnector(getPort(args));
+		
+		
+		SimpleContainer container = new SimpleContainer();
+		connector.setContainer(container);
+		
 		connector.start();
 	}
 

@@ -34,6 +34,11 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        
+        <dependency>
+        	<groupId>org.apache.tomcat</groupId>
+        	<artifactId>tomcat-catalina</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -70,6 +75,7 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeScope>provided</includeScope>
                         </configuration>
                     </execution>
                 </executions>
