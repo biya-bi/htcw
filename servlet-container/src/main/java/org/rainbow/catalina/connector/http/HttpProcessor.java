@@ -7,7 +7,6 @@ import java.net.Socket;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
-import org.rainbow.catalina.core.SimpleContainer;
 import org.rainbow.catalina.util.RequestUtil;
 import org.rainbow.catalina.util.StringManager;
 import org.slf4j.Logger;
@@ -62,7 +61,7 @@ public class HttpProcessor implements Runnable {
 			parseRequest(inputStream, outputStream);
 			parseHeaders(inputStream);
 
-			((SimpleContainer) this.connector.getContainer()).invoke(request, response);
+			this.connector.getContainer().invoke(request, response);
 
 			// Close the socket.
 			socket.close();

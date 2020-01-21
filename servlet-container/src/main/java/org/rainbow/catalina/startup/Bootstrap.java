@@ -1,7 +1,14 @@
 package org.rainbow.catalina.startup;
 
 import org.rainbow.catalina.connector.http.HttpConnector;
-import org.rainbow.catalina.core.SimpleContainer;
+import org.rainbow.catalina.core.ClientIPLoggerValve;
+import org.rainbow.catalina.core.HeaderLoggerValve;
+import org.rainbow.catalina.core.Loader;
+import org.rainbow.catalina.core.Pipeline;
+import org.rainbow.catalina.core.SimpleLoader;
+import org.rainbow.catalina.core.SimpleWrapper;
+import org.rainbow.catalina.core.Valve;
+import org.rainbow.catalina.core.Wrapper;
 import org.rainbow.catalina.loaders.LibraryLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +28,19 @@ public final class Bootstrap {
 	public static void main(String[] args) {
 		HttpConnector connector = new HttpConnector(getPort(args));
 		
+		Wrapper wrapper = new SimpleWrapper();
+
+		Loader loader = new SimpleLoader();
+	
+		wrapper.setLoader(loader);
 		
-		SimpleContainer container = new SimpleContainer();
-		connector.setContainer(container);
+		Valve valve1 = new HeaderLoggerValve();
+		Valve valve2 = new ClientIPLoggerValve();
+		
+		((Pipeline) wrapper).addValve(valve1);
+		((Pipeline) wrapper).addValve(valve2);
+		
+		connector.setContainer(wrapper);
 		
 		connector.start();
 	}

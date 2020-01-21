@@ -6,7 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Stack;
 
-import org.apache.catalina.Container;
+import org.rainbow.catalina.core.Container;
 import org.rainbow.catalina.util.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
