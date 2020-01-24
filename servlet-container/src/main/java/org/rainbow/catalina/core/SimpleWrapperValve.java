@@ -10,6 +10,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.rainbow.catalina.Contained;
+import org.rainbow.catalina.Container;
+import org.rainbow.catalina.Valve;
+import org.rainbow.catalina.ValveContext;
+import org.rainbow.catalina.Wrapper;
 import org.rainbow.catalina.connector.http.HttpRequest;
 import org.rainbow.catalina.connector.http.HttpResponse;
 import org.rainbow.catalina.processors.ServletProcessor;

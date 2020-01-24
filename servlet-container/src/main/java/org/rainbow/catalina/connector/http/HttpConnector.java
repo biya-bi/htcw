@@ -8,7 +8,7 @@ import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.rainbow.catalina.core.Container;
+import org.rainbow.catalina.Container;
 import org.rainbow.catalina.util.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.rainbow.catalina.core;
+package org.rainbow.catalina;
 
 /**
  * @author biya-bi

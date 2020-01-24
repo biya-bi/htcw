@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandler;
 
+import org.rainbow.catalina.Loader;
 import org.rainbow.catalina.connector.http.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

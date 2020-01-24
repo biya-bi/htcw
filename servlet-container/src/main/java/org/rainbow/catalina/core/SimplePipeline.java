@@ -9,6 +9,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.rainbow.catalina.Contained;
+import org.rainbow.catalina.Container;
+import org.rainbow.catalina.Pipeline;
+import org.rainbow.catalina.Valve;
+import org.rainbow.catalina.ValveContext;
+
 /**
  * @author biya-bi
  *
