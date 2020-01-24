@@ -3,6 +3,10 @@ package org.rainbow.catalina.connector.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -37,11 +41,25 @@ public class HttpProcessor implements Runnable {
 
 	private Socket socket;
 
+	// We use a single thread executor for two reasons:
+	// 1. We want only one thread to handle all HTTP requests sent to
+	// this processor. Creating a new thread for each HTTP request
+	// will be a real waste of resources.
+	// 2. We want the HTTP requests to be processed in order, as they come.
+	private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+	// This variable indicates whether this processor's executor has been
+	// started. In other words, if the execute method has been called on
+	// the executor object.
+	private volatile boolean running;
+
+	private final Lock lock = new ReentrantLock();
+
 	public HttpProcessor(HttpConnector connector) {
 		this.connector = connector;
 	}
 
-	private void process(Socket socket) {
+	private void process(Socket socket) throws IOException, ServletException {
 		SocketInputStream inputStream = null;
 		OutputStream outputStream = null;
 
@@ -62,13 +80,9 @@ public class HttpProcessor implements Runnable {
 			parseHeaders(inputStream);
 
 			this.connector.getContainer().invoke(request, response);
-
+		} finally {
 			// Close the socket.
 			socket.close();
-
-			// No shutdown yet.
-		} catch (Exception e) {
-			logger.error("An unexpected error occurred.", e);
 		}
 	}
 
@@ -312,23 +326,51 @@ public class HttpProcessor implements Runnable {
 	public void run() {
 		// Process requests until we receive a shutdown signal
 		while (!stopped) {
-			// Wait for the next socket to be assigned
-			Socket socket = await();
-			if (socket == null)
-				continue;
-			// Process the request from this socket
+			// We wrap the whole content of this loop inside a
+			// try-catch block because we don't want any throwable
+			// to interrupt the run method. We want the await to
+			// always be waiting for requests.
 			try {
+				// Wait for the next socket to be assigned
+				Socket socket = await();
+				if (socket == null)
+					continue;
+				// Process the request from this socket
 				process(socket);
+				// Finish up this request
+				connector.recycle(this);
 			} catch (Throwable t) {
 				logger.error(sm.getString("unexpectedError"), t);
 			}
-			// Finish up this request
-			connector.recycle(this);
 		}
 	}
 
 	public void start() {
-		Thread thread = new Thread(this);
-		thread.start();
+		if (running) {
+			// If the executor is already running, we return.
+			return;
+		}
+		// If for any reason, the start method is called from two different
+		// threads, A and B, on the current processor, and the executor was
+		// not yet running, the below could happen:
+		// - Thread A sleeps before acquiring the lock.
+		// - Thread B acquires the lock, sets the volatile variable to true,
+		// starts the executor, releases the lock and exits the methods.
+		// - Thread A wakes up, acquires the lock, sees that the running
+		// variable is already true (set by Thread B), and releases the lock
+		// immediately. Without the second check on the running variable,
+		// Thread A would have called the execute method of the executor, which
+		// is not what we want because that method was already called by Thread
+		// B.
+		if (lock.tryLock()) {
+			try {
+				if (!running) {
+					running = true;
+					executor.execute(this);
+				}
+			} finally {
+				lock.unlock();
+			}
+		}
 	}
 }
