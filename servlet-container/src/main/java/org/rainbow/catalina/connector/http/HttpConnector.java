@@ -5,6 +5,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Stack;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.rainbow.catalina.core.Container;
 import org.rainbow.catalina.util.StringManager;
@@ -28,6 +30,8 @@ public class HttpConnector implements Runnable {
 
 	private Container container;
 
+	private ExecutorService executor = Executors.newCachedThreadPool();
+
 	public HttpConnector(int port) {
 		this.port = port;
 	}
@@ -46,7 +50,7 @@ public class HttpConnector implements Runnable {
 		}
 
 		while (!stopped) {
-			Socket socket = null;
+			final Socket socket;
 
 			try {
 				socket = serverSocket.accept();
@@ -65,8 +69,10 @@ public class HttpConnector implements Runnable {
 					logger.error(sm.getString("ioError"), e);
 				}
 			} else {
-				processor.start();
-				processor.assign(socket);
+				executor.execute(() -> {
+					processor.start();
+					processor.assign(socket);
+				});
 			}
 		}
 	}
