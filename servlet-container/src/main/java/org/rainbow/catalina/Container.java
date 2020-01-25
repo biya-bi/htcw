@@ -23,4 +23,10 @@ public interface Container {
 	Container getParent();
 
 	void setParent(Container parent);
+
+	String getName();
+
+	void setName(String name);
+	
+	void addChild(Container child);
 }

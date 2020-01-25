@@ -204,4 +204,10 @@ public class SimpleWrapper implements Wrapper, Pipeline {
 		this.servletClass = servletClass;
 	}
 
+	@Override
+	public void addChild(Container child) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

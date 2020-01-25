@@ -1,11 +1,11 @@
 package org.rainbow.catalina.connector;
 
-import org.rainbow.catalina.connector.http.HttpResponse;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
+
+import org.rainbow.catalina.connector.http.HttpResponse;
 
 /**
  * Convenience implementation of <b>ServletOutputStream</b> that works with
