@@ -11,7 +11,8 @@ public class SimpleContextMapper implements Mapper {
 	/**
 	 * The Container with which this Mapper is associated.
 	 */
-	private SimpleContext context = null;
+	private SimpleContext context;
+	private String protocol;
 
 	public Container getContainer() {
 		return (context);
@@ -24,10 +25,11 @@ public class SimpleContextMapper implements Mapper {
 	}
 
 	public String getProtocol() {
-		return null;
+		return protocol;
 	}
 
 	public void setProtocol(String protocol) {
+		this.protocol = protocol;
 	}
 
 	/**
