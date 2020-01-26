@@ -293,7 +293,7 @@ public class HttpResponse implements HttpServletResponse {
         byte[] bytes = new byte[BUFFER_SIZE];
         FileInputStream fis = null;
         try {
-            File file = new File(Constants.WEB_ROOT, request.getRequestURI());
+            File file = new File(Constants.WEB_APPS, request.getRequestURI());
             if (file.exists()) {
                 String header = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/html\r\n" +

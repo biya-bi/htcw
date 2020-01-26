@@ -24,21 +24,26 @@ public class SimpleLoader implements Loader {
 	private URLClassLoader classLoader;
 
 	public SimpleLoader() {
-		try {
-			URL[] urls = new URL[1];
-			URLStreamHandler streamHandler = null;
-			File classPath = new File(Constants.WEB_ROOT);
-			String repository = (new URL("file", null, classPath.getCanonicalPath() + File.separator)).toString();
-			urls[0] = new URL(null, repository, streamHandler);
-			classLoader = new URLClassLoader(urls);
-		} catch (IOException e) {
-			logger.error("An I/O error has occurred", e);
-		}
 	}
 
 	@Override
 	public ClassLoader getClassLoader() {
+		if (classLoader == null) {
+			try {
+				URL[] urls = new URL[1];
+				URLStreamHandler streamHandler = null;
+				File classPath = new File(getPath());
+				String repository = (new URL("file", null, classPath.getCanonicalPath() + File.separator)).toString();
+				urls[0] = new URL(null, repository, streamHandler);
+				classLoader = new URLClassLoader(urls);
+			} catch (IOException e) {
+				logger.error("An I/O error has occurred", e);
+			}
+		}
 		return classLoader;
 	}
 
+	protected String getPath() {
+		return Constants.WEB_APPS;
+	}
 }

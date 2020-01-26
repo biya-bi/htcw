@@ -34,7 +34,7 @@
                         </goals>
                         <configuration>
                             <encoding>UTF-8</encoding>
-                            <outputDirectory>${user.home}/learning/tomcat/webroot</outputDirectory>
+                            <outputDirectory>${user.home}/learning/tomcat/webapps/sample-app</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.build.directory}/classes</directory>

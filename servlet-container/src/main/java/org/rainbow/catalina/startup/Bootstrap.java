@@ -1,18 +1,14 @@
 package org.rainbow.catalina.startup;
 
 import org.rainbow.catalina.Context;
-import org.rainbow.catalina.Loader;
 import org.rainbow.catalina.Mapper;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
-import org.rainbow.catalina.Wrapper;
 import org.rainbow.catalina.connector.http.HttpConnector;
 import org.rainbow.catalina.core.ClientIPLoggerValve;
 import org.rainbow.catalina.core.HeaderLoggerValve;
 import org.rainbow.catalina.core.SimpleContext;
 import org.rainbow.catalina.core.SimpleContextMapper;
-import org.rainbow.catalina.core.SimpleLoader;
-import org.rainbow.catalina.core.SimpleWrapper;
 import org.rainbow.catalina.loaders.LibraryLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +28,7 @@ public final class Bootstrap {
 	public static void main(String[] args) {
 		HttpConnector connector = new HttpConnector(getPort(args));
 
-		Wrapper wrapper1 = new SimpleWrapper();
-		wrapper1.setName("Primitive");
-		wrapper1.setServletClass("org.rainbow.learning.htcw.servlets.PrimitiveServlet");
-
 		Context context = new SimpleContext();
-		context.addChild(wrapper1);
 
 		Valve valve1 = new HeaderLoggerValve();
 		Valve valve2 = new ClientIPLoggerValve();
@@ -48,12 +39,6 @@ public final class Bootstrap {
 
 		((Pipeline) context).addValve(valve1);
 		((Pipeline) context).addValve(valve2);
-
-		Loader loader = new SimpleLoader();
-
-		context.setLoader(loader);
-
-		context.addServletMapping("/Primitive", "Primitive");
 
 		connector.setContainer(context);
 

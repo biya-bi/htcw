@@ -2,6 +2,7 @@ package org.rainbow.catalina.core;
 
 import java.awt.event.ContainerListener;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
 
 import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Context;
@@ -19,6 +21,11 @@ import org.rainbow.catalina.Mapper;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.Wrapper;
+import org.rainbow.catalina.config.DeploymentDescriptor;
+import org.rainbow.catalina.config.Servlet;
+import org.rainbow.catalina.config.ServletMapping;
+import org.rainbow.catalina.config.XmlProcessor;
+import org.rainbow.catalina.connector.http.Constants;
 import org.rainbow.catalina.deploy.ApplicationParameter;
 import org.rainbow.catalina.deploy.ContextEjb;
 import org.rainbow.catalina.deploy.ContextEnvironment;
@@ -595,6 +602,13 @@ public class SimpleContext implements Context, Pipeline {
 	}
 
 	public void invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		final String contextPath = request.getContextPath();
+		setLoader(new SimpleContextLoader(contextPath));
+		try {
+			readDeploymentDescriptor(contextPath);
+		} catch (JAXBException e) {
+			throw new ServletException(e);
+		}
 		pipeline.invoke(request, response);
 	}
 
@@ -663,4 +677,30 @@ public class SimpleContext implements Context, Pipeline {
 		this.container = container;
 	}
 
+	private void readDeploymentDescriptor(String contextPath) throws JAXBException, IOException {
+		XmlProcessor<DeploymentDescriptor> processor = new XmlProcessor<>(DeploymentDescriptor.class);
+
+		String deploymentDescriptorPath = new File(
+				Constants.WEB_APPS + contextPath + File.separator + "WEB-INF" + File.separator + "web.xml")
+						.getCanonicalPath();
+
+		DeploymentDescriptor deploymentDescriptor = processor.unmarshall(deploymentDescriptorPath);
+
+		if (deploymentDescriptor.getServlets() != null) {
+			for (Servlet servlet : deploymentDescriptor.getServlets()) {
+				Wrapper wrapper = new SimpleWrapper();
+
+				wrapper.setName(servlet.getServletName());
+				wrapper.setServletClass(servlet.getServletClass());
+
+				addChild(wrapper);
+			}
+		}
+
+		if (deploymentDescriptor.getServletMappings() != null) {
+			for (ServletMapping mapping : deploymentDescriptor.getServletMappings()) {
+				addServletMapping(mapping.getUrlPattern(), mapping.getServletName());
+			}
+		}
+	}
 }

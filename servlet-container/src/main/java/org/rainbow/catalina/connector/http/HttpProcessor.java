@@ -215,6 +215,8 @@ public class HttpProcessor implements Runnable {
 		if (normalizedUri == null) {
 			throw new ServletException("Invalid URI: " + uri + "'");
 		}
+
+		request.setContextPath(getContextPath(uri));
 	}
 
 	/**
@@ -372,5 +374,16 @@ public class HttpProcessor implements Runnable {
 				lock.unlock();
 			}
 		}
+	}
+
+	private String getContextPath(String uri) {
+		int index1 = uri.indexOf("/");
+		if (index1 >= 0) {
+			int index2 = uri.indexOf("/", index1 + 1);
+			if (index2 >= 0) {
+				return uri.substring(index1, index2);
+			}
+		}
+		return "";
 	}
 }
