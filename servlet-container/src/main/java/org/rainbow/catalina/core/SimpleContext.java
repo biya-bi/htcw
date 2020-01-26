@@ -16,6 +16,9 @@ import javax.xml.bind.JAXBException;
 
 import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Context;
+import org.rainbow.catalina.Lifecycle;
+import org.rainbow.catalina.LifecycleException;
+import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
 import org.rainbow.catalina.Mapper;
 import org.rainbow.catalina.Pipeline;
@@ -39,9 +42,10 @@ import org.rainbow.catalina.deploy.LoginConfig;
 import org.rainbow.catalina.deploy.NamingResources;
 import org.rainbow.catalina.deploy.SecurityConstraint;
 import org.rainbow.catalina.util.CharsetMapper;
+import org.rainbow.catalina.util.LifecycleSupport;
 import org.slf4j.Logger;
 
-public class SimpleContext implements Context, Pipeline {
+public class SimpleContext implements Context, Pipeline, Lifecycle {
 	protected Map<String, Container> children = new HashMap<>();
 	protected Loader loader;
 	protected SimplePipeline pipeline = new SimplePipeline(this);
@@ -50,6 +54,10 @@ public class SimpleContext implements Context, Pipeline {
 	protected Map<String, Mapper> mappers = new HashMap<>();
 	private Container parent;
 	private Container container;
+	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
+	private boolean started;
+
+	private String name;
 
 	public SimpleContext() {
 		pipeline.setBasic(new SimpleContextValve());
@@ -492,10 +500,10 @@ public class SimpleContext implements Context, Pipeline {
 
 	public Loader getLoader() {
 		if (loader != null)
-			return (loader);
+			return loader;
 		if (parent != null)
-			return (parent.getLoader());
-		return (null);
+			return parent.getLoader();
+		return null;
 	}
 
 	public void setLoader(Loader loader) {
@@ -510,10 +518,11 @@ public class SimpleContext implements Context, Pipeline {
 	}
 
 	public String getName() {
-		return null;
+		return name;
 	}
 
 	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Container getParent() {
@@ -602,13 +611,6 @@ public class SimpleContext implements Context, Pipeline {
 	}
 
 	public void invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		final String contextPath = request.getContextPath();
-		setLoader(new SimpleContextLoader(contextPath));
-		try {
-			readDeploymentDescriptor(contextPath);
-		} catch (JAXBException e) {
-			throw new ServletException(e);
-		}
 		pipeline.invoke(request, response);
 	}
 
@@ -702,5 +704,92 @@ public class SimpleContext implements Context, Pipeline {
 				addServletMapping(mapping.getUrlPattern(), mapping.getServletName());
 			}
 		}
+	}
+
+	@Override
+	public void addLifecycleListener(LifecycleListener listener) {
+		lifecycleSupport.addLifecycleListener(listener);
+	}
+
+	@Override
+	public LifecycleListener[] findLifecycleListeners() {
+		return lifecycleSupport.findLifecycleListeners();
+	}
+
+	@Override
+	public void removeLifecycleListener(LifecycleListener listener) {
+		lifecycleSupport.removeLifecycleListener(listener);
+	}
+
+	@Override
+	public synchronized void start() throws LifecycleException {
+		if (started)
+			throw new LifecycleException("SimpleContext has already started");
+
+		final String contextPath = "/" + getName();
+
+		setLoader(new SimpleContextLoader(contextPath));
+
+		try {
+			readDeploymentDescriptor(contextPath);
+		} catch (JAXBException | IOException e) {
+			throw new LifecycleException(e);
+		}
+
+		// Notify our interested LifecycleListeners
+		lifecycleSupport.fireLifecycleEvent(BEFORE_START_EVENT, null);
+
+		started = true;
+
+		// Start our subordinate components, if any
+		if ((loader != null) && (loader instanceof Lifecycle))
+			((Lifecycle) loader).start();
+		// Start our child containers, if any
+		Container children[] = findChildren();
+		for (int i = 0; i < children.length; i++) {
+			if (children[i] instanceof Lifecycle)
+				((Lifecycle) children[i]).start();
+		}
+		// Start the Valves in our pipeline (including the basic),
+		// if any
+		if (pipeline instanceof Lifecycle)
+			((Lifecycle) pipeline).start();
+
+		// Notify our interested LifecycleListeners
+		lifecycleSupport.fireLifecycleEvent(START_EVENT, null);
+
+		// Notify our interested LifecycleListeners
+		lifecycleSupport.fireLifecycleEvent(AFTER_START_EVENT, null);
+	}
+
+	@Override
+	public synchronized void stop() throws LifecycleException {
+		if (!started)
+			throw new LifecycleException("SimpleContext has not been started");
+
+		// Notify our interested LifecycleListeners
+		lifecycleSupport.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
+		lifecycleSupport.fireLifecycleEvent(STOP_EVENT, null);
+
+		started = false;
+
+		// Stop the Valves in our pipeline (including the basic), if any
+		if (pipeline instanceof Lifecycle) {
+			((Lifecycle) pipeline).stop();
+		}
+
+		// Stop our child containers, if any
+		Container children[] = findChildren();
+		for (int i = 0; i < children.length; i++) {
+			if (children[i] instanceof Lifecycle)
+				((Lifecycle) children[i]).stop();
+		}
+
+		if ((loader != null) && (loader instanceof Lifecycle)) {
+			((Lifecycle) loader).stop();
+		}
+
+		// Notify our interested LifecycleListeners
+		lifecycleSupport.fireLifecycleEvent(AFTER_STOP_EVENT, null);
 	}
 }

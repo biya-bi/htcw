@@ -11,15 +11,22 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.rainbow.catalina.Contained;
 import org.rainbow.catalina.Container;
+import org.rainbow.catalina.Lifecycle;
+import org.rainbow.catalina.LifecycleException;
+import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.ValveContext;
+import org.rainbow.catalina.util.LifecycleSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author biya-bi
  *
  */
-public class SimplePipeline implements Pipeline {
+public class SimplePipeline implements Pipeline, Lifecycle {
+	private static final Logger logger = LoggerFactory.getLogger(SimplePipeline.class);
 
 	// The basic Valve (if any) associated with this Pipeline.
 	protected Valve basic = null;
@@ -27,6 +34,8 @@ public class SimplePipeline implements Pipeline {
 	protected Container container = null;
 	// the array of Valves
 	protected Valve valves[] = new Valve[0];
+
+	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 
 	public SimplePipeline(Container container) {
 		setContainer(container);
@@ -112,5 +121,30 @@ public class SimplePipeline implements Pipeline {
 	public void invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		// Invoke the first Valve in this pipeline for this request
 		(new SimplePipelineValveContext()).invokeNext(request, response);
+	}
+
+	@Override
+	public void addLifecycleListener(LifecycleListener listener) {
+	lifecycleSupport.addLifecycleListener(listener);
+	}
+
+	@Override
+	public LifecycleListener[] findLifecycleListeners() {
+		return lifecycleSupport.findLifecycleListeners();
+	}
+
+	@Override
+	public void removeLifecycleListener(LifecycleListener listener) {
+		lifecycleSupport.removeLifecycleListener(listener);
+	}
+
+	@Override
+	public void start() throws LifecycleException {
+		logger.info("Starting simple pipeline");
+	}
+
+	@Override
+	public void stop() throws LifecycleException {
+		logger.info("Stopping simple pipeline");
 	}
 }
