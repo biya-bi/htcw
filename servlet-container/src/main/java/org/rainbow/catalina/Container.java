@@ -27,6 +27,10 @@ public interface Container {
 	String getName();
 
 	void setName(String name);
-	
+
 	void addChild(Container child);
+
+	Logger getLogger();
+
+	void setLogger(Logger logger);
 }

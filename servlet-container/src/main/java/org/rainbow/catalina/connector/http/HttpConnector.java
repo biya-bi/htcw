@@ -9,13 +9,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.rainbow.catalina.Container;
+import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.util.StringManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpConnector implements Runnable {
-	private static final Logger logger = LoggerFactory.getLogger(HttpConnector.class);
-
 	private boolean stopped;
 	private final String scheme = "http";
 	private int port;
@@ -45,7 +42,7 @@ public class HttpConnector implements Runnable {
 		try {
 			serverSocket = new ServerSocket(port, maxProcessors, InetAddress.getByName("127.0.0.1"));
 		} catch (IOException e) {
-			logger.error(sm.getString("ioError"), e);
+			log(sm.getString("ioError"), e);
 			System.exit(1);
 		}
 
@@ -55,18 +52,18 @@ public class HttpConnector implements Runnable {
 			try {
 				socket = serverSocket.accept();
 			} catch (IOException e) {
-				logger.error(sm.getString("ioError"), e);
+				log(sm.getString("ioError"), e);
 				continue;
 			}
 
 			HttpProcessor processor = createProcessor();
 
 			if (processor == null) {
-				logger.error(sm.getString("httpConnector.noProcessor"));
+				log(sm.getString("httpConnector.noProcessor"));
 				try {
 					socket.close();
 				} catch (IOException e) {
-					logger.error(sm.getString("ioError"), e);
+					log(sm.getString("ioError"), e);
 				}
 			} else {
 				executor.execute(() -> {
@@ -78,7 +75,6 @@ public class HttpConnector implements Runnable {
 	}
 
 	public void start() {
-		logger.info("Starting the server.");
 		Thread thread = new Thread(this);
 		thread.start();
 	}
@@ -124,4 +120,14 @@ public class HttpConnector implements Runnable {
 		this.container = container;
 	}
 
+	private void log(String message) {
+		log(message, null);
+	}
+
+	private void log(String message, Throwable t) {
+		Logger logger = container.getLogger();
+
+		if (logger != null)
+			logger.log(message, t);
+	}
 }

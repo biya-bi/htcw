@@ -20,6 +20,7 @@ import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
+import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.Mapper;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
@@ -43,7 +44,6 @@ import org.rainbow.catalina.deploy.NamingResources;
 import org.rainbow.catalina.deploy.SecurityConstraint;
 import org.rainbow.catalina.util.CharsetMapper;
 import org.rainbow.catalina.util.LifecycleSupport;
-import org.slf4j.Logger;
 
 public class SimpleContext implements Context, Pipeline, Lifecycle {
 	protected Map<String, Container> children = new HashMap<>();
@@ -55,9 +55,10 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 	private Container parent;
 	private Container container;
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
-	private boolean started;
+	private volatile boolean started;
 
 	private String name;
+	private Logger logger;
 
 	public SimpleContext() {
 		pipeline.setBasic(new SimpleContextValve());
@@ -508,13 +509,19 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 
 	public void setLoader(Loader loader) {
 		this.loader = loader;
+		loader.setContainer(this);
 	}
 
 	public Logger getLogger() {
+		if (logger != null)
+			return logger;
+		if (parent != null)
+			return parent.getLogger();
 		return null;
 	}
 
 	public void setLogger(Logger logger) {
+		this.logger = logger;
 	}
 
 	public String getName() {
@@ -726,6 +733,11 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 		if (started)
 			throw new LifecycleException("SimpleContext has already started");
 
+		Logger logger = getLogger();
+		if (logger instanceof Lifecycle) {
+			((Lifecycle) logger).start();
+		}
+		
 		final String contextPath = "/" + getName();
 
 		setLoader(new SimpleContextLoader(contextPath));
@@ -766,7 +778,7 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 	public synchronized void stop() throws LifecycleException {
 		if (!started)
 			throw new LifecycleException("SimpleContext has not been started");
-
+		
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
 		lifecycleSupport.fireLifecycleEvent(STOP_EVENT, null);
@@ -787,6 +799,11 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 
 		if ((loader != null) && (loader instanceof Lifecycle)) {
 			((Lifecycle) loader).stop();
+		}
+
+		Logger logger = getLogger();
+		if (logger instanceof Lifecycle) {
+			((Lifecycle) logger).stop();
 		}
 
 		// Notify our interested LifecycleListeners

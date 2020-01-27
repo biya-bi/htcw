@@ -15,20 +15,17 @@ import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
+import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.Wrapper;
 import org.rainbow.catalina.util.LifecycleSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author biya-bi
  *
  */
 public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleWrapper.class);
-
 	// The servlet instance
 	private Servlet instance;
 	private String servletClass;
@@ -38,7 +35,8 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 	protected Container parent;
 	private Container container;
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
-	private boolean started;
+	private volatile boolean started;
+	private Logger logger;
 
 	public SimpleWrapper() {
 		pipeline.setBasic(new SimpleWrapperValve());
@@ -236,10 +234,10 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 
 	@Override
 	public synchronized void start() throws LifecycleException {
-		logger.info(String.format("Starting wrapper '%s'", name));
-
 		if (started)
 			throw new LifecycleException("Wrapper already started");
+
+		getLogger().log(String.format("Starting wrapper '%s'", name));
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_START_EVENT, null);
@@ -263,10 +261,10 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 
 	@Override
 	public synchronized void stop() throws LifecycleException {
-		logger.info(String.format("Stopping wrapper '%s'", name));
-
 		if (!started)
 			throw new LifecycleException(String.format("Wrapper '%s' not started", name));
+
+		getLogger().log(String.format("Stopping wrapper '%s'", name));
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
@@ -294,6 +292,20 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(AFTER_STOP_EVENT, null);
+	}
+
+	@Override
+	public Logger getLogger() {
+		if (logger != null)
+			return logger;
+		if (parent != null)
+			return parent.getLogger();
+		return null;
+	}
+
+	@Override
+	public void setLogger(Logger logger) {
+		this.logger = logger;
 	}
 
 }

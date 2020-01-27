@@ -11,14 +11,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
+import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.util.RequestUtil;
 import org.rainbow.catalina.util.StringManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpProcessor implements Runnable {
-	private static final Logger logger = LoggerFactory.getLogger(HttpProcessor.class);
-
 	/**
 	 * The HttpConnector with which this processor is associated.
 	 */
@@ -319,7 +316,7 @@ public class HttpProcessor implements Runnable {
 		available = false;
 		notifyAll();
 		if (socket != null) {
-			logger.debug("The incoming request has been awaited");
+			log("The incoming request has been awaited");
 		}
 		return socket;
 	}
@@ -342,7 +339,7 @@ public class HttpProcessor implements Runnable {
 				// Finish up this request
 				connector.recycle(this);
 			} catch (Throwable t) {
-				logger.error(sm.getString("unexpectedError"), t);
+				log(sm.getString("unexpectedError"), t);
 			}
 		}
 	}
@@ -385,5 +382,19 @@ public class HttpProcessor implements Runnable {
 			}
 		}
 		return "";
+	}
+
+	private void log(String message) {
+		Logger logger = connector.getContainer().getLogger();
+
+		if (logger != null)
+			logger.log(message);
+	}
+
+	private void log(String message, Throwable t) {
+		Logger logger = connector.getContainer().getLogger();
+
+		if (logger != null)
+			logger.log(message, t);
 	}
 }

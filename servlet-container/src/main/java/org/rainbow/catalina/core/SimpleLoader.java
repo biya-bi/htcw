@@ -9,24 +9,23 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandler;
 
+import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
+import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.connector.http.Constants;
 import org.rainbow.catalina.util.LifecycleSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author biya-bi
  *
  */
 public class SimpleLoader implements Loader, Lifecycle {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleLoader.class);
-
 	private URLClassLoader classLoader;
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
+	private Container container;
 
 	public SimpleLoader() {
 	}
@@ -42,7 +41,9 @@ public class SimpleLoader implements Loader, Lifecycle {
 				urls[0] = new URL(null, repository, streamHandler);
 				classLoader = new URLClassLoader(urls);
 			} catch (IOException e) {
-				logger.error("An I/O error has occurred", e);
+				Logger logger = container.getLogger();
+				if (logger != null)
+					logger.log("An I/O error has occurred", e);
 			}
 		}
 		return classLoader;
@@ -68,12 +69,29 @@ public class SimpleLoader implements Loader, Lifecycle {
 	}
 
 	@Override
-	public void start() throws LifecycleException {
-		logger.info("Starting simple loader");
+	public synchronized void start() throws LifecycleException {
+		log("Starting simple loader");
 	}
 
 	@Override
-	public void stop() throws LifecycleException {
-		logger.info("Stopping simple loader");
+	public synchronized void stop() throws LifecycleException {
+		log("Stopping simple loader");
+	}
+
+	@Override
+	public Container getContainer() {
+		return container;
+	}
+
+	@Override
+	public void setContainer(Container container) {
+		this.container = container;
+	}
+
+	private void log(String message) {
+		Logger logger = container.getLogger();
+
+		if (logger != null)
+			logger.log(message);
 	}
 }

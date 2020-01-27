@@ -14,20 +14,17 @@ import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.LifecycleListener;
+import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.ValveContext;
 import org.rainbow.catalina.util.LifecycleSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author biya-bi
  *
  */
 public class SimplePipeline implements Pipeline, Lifecycle {
-	private static final Logger logger = LoggerFactory.getLogger(SimplePipeline.class);
-
 	// The basic Valve (if any) associated with this Pipeline.
 	protected Valve basic = null;
 	// The Container with which this Pipeline is associated.
@@ -125,7 +122,7 @@ public class SimplePipeline implements Pipeline, Lifecycle {
 
 	@Override
 	public void addLifecycleListener(LifecycleListener listener) {
-	lifecycleSupport.addLifecycleListener(listener);
+		lifecycleSupport.addLifecycleListener(listener);
 	}
 
 	@Override
@@ -139,12 +136,19 @@ public class SimplePipeline implements Pipeline, Lifecycle {
 	}
 
 	@Override
-	public void start() throws LifecycleException {
-		logger.info("Starting simple pipeline");
+	public synchronized void start() throws LifecycleException {
+		log("Starting simple pipeline");
 	}
 
 	@Override
-	public void stop() throws LifecycleException {
-		logger.info("Stopping simple pipeline");
+	public synchronized void stop() throws LifecycleException {
+		log("Stopping simple pipeline");
+	}
+
+	private void log(String message) {
+		Logger logger = container.getLogger();
+
+		if (logger != null)
+			logger.log(message);
 	}
 }
