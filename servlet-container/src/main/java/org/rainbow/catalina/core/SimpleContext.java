@@ -45,20 +45,15 @@ import org.rainbow.catalina.deploy.SecurityConstraint;
 import org.rainbow.catalina.util.CharsetMapper;
 import org.rainbow.catalina.util.LifecycleSupport;
 
-public class SimpleContext implements Context, Pipeline, Lifecycle {
+public class SimpleContext extends ContainerBase implements Context, Pipeline, Lifecycle {
 	protected Map<String, Container> children = new HashMap<>();
-	protected Loader loader;
 	protected SimplePipeline pipeline = new SimplePipeline(this);
 	protected Map<String, String> servletMappings = new HashMap<>();
 	protected Mapper mapper;
 	protected Map<String, Mapper> mappers = new HashMap<>();
-	private Container parent;
 	private Container container;
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 	private volatile boolean started;
-
-	private String name;
-	private Logger logger;
 
 	public SimpleContext() {
 		pipeline.setBasic(new SimpleContextValve());
@@ -499,46 +494,6 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 		return null;
 	}
 
-	public Loader getLoader() {
-		if (loader != null)
-			return loader;
-		if (parent != null)
-			return parent.getLoader();
-		return null;
-	}
-
-	public void setLoader(Loader loader) {
-		this.loader = loader;
-		loader.setContainer(this);
-	}
-
-	public Logger getLogger() {
-		if (logger != null)
-			return logger;
-		if (parent != null)
-			return parent.getLogger();
-		return null;
-	}
-
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Container getParent() {
-		return null;
-	}
-
-	public void setParent(Container container) {
-	}
-
 	public ClassLoader getParentClassLoader() {
 		return null;
 	}
@@ -551,11 +506,6 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 	}
 
 	public void setResources(DirContext resources) {
-	}
-
-	public void addChild(Container child) {
-		child.setParent((Container) this);
-		children.put(child.getName(), child);
 	}
 
 	public void addContainerListener(ContainerListener listener) {
@@ -580,21 +530,6 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-	}
-
-	public Container findChild(String name) {
-		if (name == null)
-			return null;
-		synchronized (children) { // Required by post-start changes
-			return ((Container) children.get(name));
-		}
-	}
-
-	public Container[] findChildren() {
-		synchronized (children) {
-			Container results[] = new Container[children.size()];
-			return ((Container[]) children.values().toArray(results));
-		}
 	}
 
 	public ContainerListener[] findContainerListeners() {
@@ -737,7 +672,7 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 		if (logger instanceof Lifecycle) {
 			((Lifecycle) logger).start();
 		}
-		
+
 		final String contextPath = "/" + getName();
 
 		setLoader(new SimpleContextLoader(contextPath));
@@ -754,6 +689,7 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 		started = true;
 
 		// Start our subordinate components, if any
+		Loader loader = getLoader();
 		if ((loader != null) && (loader instanceof Lifecycle))
 			((Lifecycle) loader).start();
 		// Start our child containers, if any
@@ -778,7 +714,7 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 	public synchronized void stop() throws LifecycleException {
 		if (!started)
 			throw new LifecycleException("SimpleContext has not been started");
-		
+
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
 		lifecycleSupport.fireLifecycleEvent(STOP_EVENT, null);
@@ -797,6 +733,7 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 				((Lifecycle) children[i]).stop();
 		}
 
+		Loader loader = getLoader();
 		if ((loader != null) && (loader instanceof Lifecycle)) {
 			((Lifecycle) loader).stop();
 		}

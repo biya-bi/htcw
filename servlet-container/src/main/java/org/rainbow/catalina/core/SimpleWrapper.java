@@ -15,7 +15,6 @@ import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
-import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.Wrapper;
@@ -25,32 +24,17 @@ import org.rainbow.catalina.util.LifecycleSupport;
  * @author biya-bi
  *
  */
-public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
+public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, Lifecycle {
 	// The servlet instance
 	private Servlet instance;
 	private String servletClass;
-	private Loader loader;
-	private String name;
 	private Pipeline pipeline = new SimplePipeline(this);
-	protected Container parent;
 	private Container container;
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 	private volatile boolean started;
-	private Logger logger;
 
 	public SimpleWrapper() {
 		pipeline.setBasic(new SimpleWrapperValve());
-	}
-
-	@Override
-	public Container getParent() {
-		return parent;
-	}
-
-	@Override
-	public void setParent(Container parent) {
-		this.parent = parent;
-
 	}
 
 	@Override
@@ -137,25 +121,6 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 	}
 
 	@Override
-	public Loader getLoader() {
-		if (loader != null)
-			return loader;
-		if (parent != null)
-			return parent.getLoader();
-		return null;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
 	public Valve getBasic() {
 		return pipeline.getBasic();
 	}
@@ -197,11 +162,6 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 	}
 
 	@Override
-	public void setLoader(Loader loader) {
-		this.loader = loader;
-	}
-
-	@Override
 	public String getServletClass() {
 		return servletClass;
 	}
@@ -237,7 +197,7 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 		if (started)
 			throw new LifecycleException("Wrapper already started");
 
-		getLogger().log(String.format("Starting wrapper '%s'", name));
+		getLogger().log(String.format("Starting wrapper '%s'", getName()));
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_START_EVENT, null);
@@ -245,6 +205,7 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 		started = true;
 
 		// Start our subordinate components, if any
+		Loader loader = getLoader();
 		if ((loader != null) && (loader instanceof Lifecycle))
 			((Lifecycle) loader).start();
 
@@ -262,9 +223,9 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 	@Override
 	public synchronized void stop() throws LifecycleException {
 		if (!started)
-			throw new LifecycleException(String.format("Wrapper '%s' not started", name));
+			throw new LifecycleException(String.format("Wrapper '%s' not started", getName()));
 
-		getLogger().log(String.format("Stopping wrapper '%s'", name));
+		getLogger().log(String.format("Stopping wrapper '%s'", getName()));
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
@@ -286,26 +247,13 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 		}
 
 		// Stop our subordinate components, if any
+		Loader loader = getLoader();
 		if ((loader != null) && (loader instanceof Lifecycle)) {
 			((Lifecycle) loader).stop();
 		}
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(AFTER_STOP_EVENT, null);
-	}
-
-	@Override
-	public Logger getLogger() {
-		if (logger != null)
-			return logger;
-		if (parent != null)
-			return parent.getLogger();
-		return null;
-	}
-
-	@Override
-	public void setLogger(Logger logger) {
-		this.logger = logger;
 	}
 
 }

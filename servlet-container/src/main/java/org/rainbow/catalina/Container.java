@@ -30,6 +30,10 @@ public interface Container {
 
 	void addChild(Container child);
 
+	Container findChild(String name);
+
+	Container[] findChildren();
+
 	Logger getLogger();
 
 	void setLogger(Logger logger);
