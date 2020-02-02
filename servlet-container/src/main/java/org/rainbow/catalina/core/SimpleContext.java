@@ -21,7 +21,7 @@ import org.rainbow.catalina.Loader;
 import org.rainbow.catalina.Manager;
 import org.rainbow.catalina.Mapper;
 import org.rainbow.catalina.Wrapper;
-import org.rainbow.catalina.config.DeploymentDescriptor;
+import org.rainbow.catalina.config.WebXml;
 import org.rainbow.catalina.config.Servlet;
 import org.rainbow.catalina.config.ServletMapping;
 import org.rainbow.catalina.config.XmlProcessor;
@@ -572,17 +572,17 @@ public class SimpleContext extends ContainerBase implements Context {
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 	}
 
-	private void readDeploymentDescriptor(String contextPath) throws JAXBException, IOException {
-		XmlProcessor<DeploymentDescriptor> processor = new XmlProcessor<>(DeploymentDescriptor.class);
+	private void readWebXml(String contextPath) throws JAXBException, IOException {
+		XmlProcessor<WebXml> processor = new XmlProcessor<>(WebXml.class);
 
 		String deploymentDescriptorPath = new File(
 				Globals.WEB_APPS + contextPath + File.separator + "WEB-INF" + File.separator + "web.xml")
 						.getCanonicalPath();
 
-		DeploymentDescriptor deploymentDescriptor = processor.unmarshall(deploymentDescriptorPath);
+		WebXml webXml = processor.unmarshall(deploymentDescriptorPath);
 
-		if (deploymentDescriptor.getServlets() != null) {
-			for (Servlet servlet : deploymentDescriptor.getServlets()) {
+		if (webXml.getServlets() != null) {
+			for (Servlet servlet : webXml.getServlets()) {
 				Wrapper wrapper = new SimpleWrapper();
 
 				wrapper.setName(servlet.getServletName());
@@ -592,8 +592,8 @@ public class SimpleContext extends ContainerBase implements Context {
 			}
 		}
 
-		if (deploymentDescriptor.getServletMappings() != null) {
-			for (ServletMapping mapping : deploymentDescriptor.getServletMappings()) {
+		if (webXml.getServletMappings() != null) {
+			for (ServletMapping mapping : webXml.getServletMappings()) {
 				addServletMapping(mapping.getUrlPattern(), mapping.getServletName());
 			}
 		}
@@ -617,7 +617,7 @@ public class SimpleContext extends ContainerBase implements Context {
 		setLoader(new SimpleContextLoader(contextPath));
 
 		try {
-			readDeploymentDescriptor(contextPath);
+			readWebXml(contextPath);
 		} catch (JAXBException | IOException e) {
 			throw new LifecycleException(e);
 		}

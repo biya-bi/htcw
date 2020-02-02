@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement(name = "web-app")
-public class DeploymentDescriptor {
+public class WebXml {
 	private List<ServletMapping> servletMappings;
 	private List<Servlet> servlets;
 

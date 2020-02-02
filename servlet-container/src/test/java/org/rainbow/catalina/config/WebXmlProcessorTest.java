@@ -21,12 +21,12 @@ import org.junit.Test;
  * @author biya-bi
  *
  */
-public class DeploymentDescriptorProcessorTest {
-	private XmlProcessor<DeploymentDescriptor> processor = new XmlProcessor<>(DeploymentDescriptor.class);
+public class WebXmlProcessorTest {
+	private XmlProcessor<WebXml> processor = new XmlProcessor<>(WebXml.class);
 
 	private final String webInfPathName = System.getProperty("user.dir") + File.separator + "target" + File.separator
 			+ "WEB-INF";
-	private final String deploymentDescriptorPathName = webInfPathName + File.separator + "web.xml";
+	private final String webXmlPathName = webInfPathName + File.separator + "web.xml";
 
 	private File webInf;
 
@@ -56,14 +56,14 @@ public class DeploymentDescriptorProcessorTest {
 	@Test
 	public void unmarshall_deploymentDescriptorExists_DeploymentDescriptorUnmarshalled()
 			throws FileNotFoundException, JAXBException, UnsupportedEncodingException {
-		try (PrintWriter writer = new PrintWriter(deploymentDescriptorPathName, "UTF-8")) {
+		try (PrintWriter writer = new PrintWriter(webXmlPathName, "UTF-8")) {
 			writer.println("<web-app>");
 			writer.println("</web-app>");
 		}
 
-		DeploymentDescriptor deploymentDescriptor = processor.unmarshall(deploymentDescriptorPathName);
+		WebXml webXml = processor.unmarshall(webXmlPathName);
 
-		Assert.assertNotNull(deploymentDescriptor);
+		Assert.assertNotNull(webXml);
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class DeploymentDescriptorProcessorTest {
 			throws FileNotFoundException, JAXBException, UnsupportedEncodingException {
 		ServletMapping[] expecteds = { new ServletMapping("servlet1", "pattern1"),
 				new ServletMapping("servlet2", "pattern2") };
-		try (PrintWriter writer = new PrintWriter(deploymentDescriptorPathName, "UTF-8")) {
+		try (PrintWriter writer = new PrintWriter(webXmlPathName, "UTF-8")) {
 			writer.println("<web-app>");
 
 			for (ServletMapping mapping : expecteds) {
@@ -91,9 +91,9 @@ public class DeploymentDescriptorProcessorTest {
 			writer.println("</web-app>");
 		}
 
-		DeploymentDescriptor deploymentDescriptor = processor.unmarshall(deploymentDescriptorPathName);
+		WebXml webXml = processor.unmarshall(webXmlPathName);
 
-		ServletMapping[] actuals = deploymentDescriptor.getServletMappings().toArray(new ServletMapping[2]);
+		ServletMapping[] actuals = webXml.getServletMappings().toArray(new ServletMapping[2]);
 
 		Assert.assertArrayEquals(expecteds, actuals);
 	}
@@ -108,7 +108,7 @@ public class DeploymentDescriptorProcessorTest {
 		servlet2.setInitParams(Arrays.asList(new InitParam("servlet2-param1", "servlet2-value1")));
 
 		Servlet[] expecteds = { servlet1, servlet2 };
-		try (PrintWriter writer = new PrintWriter(deploymentDescriptorPathName, "UTF-8")) {
+		try (PrintWriter writer = new PrintWriter(webXmlPathName, "UTF-8")) {
 			writer.println("<web-app>");
 
 			for (Servlet servlet : expecteds) {
@@ -142,9 +142,9 @@ public class DeploymentDescriptorProcessorTest {
 			writer.println("</web-app>");
 		}
 
-		DeploymentDescriptor deploymentDescriptor = processor.unmarshall(deploymentDescriptorPathName);
+		WebXml webXml = processor.unmarshall(webXmlPathName);
 
-		Servlet[] actuals = deploymentDescriptor.getServlets().toArray(new Servlet[2]);
+		Servlet[] actuals = webXml.getServlets().toArray(new Servlet[2]);
 
 		Assert.assertArrayEquals(expecteds, actuals);
 
