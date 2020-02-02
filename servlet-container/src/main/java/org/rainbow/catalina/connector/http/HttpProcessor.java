@@ -135,6 +135,23 @@ public class HttpProcessor implements Runnable {
 				request.setContentLength(n);
 			} else if (name.equals("content-type")) {
 				request.setContentType(value);
+			} else if (name.equals("host")) {
+				String serverName;
+				int port = -1;
+				int index = value.lastIndexOf(":");
+				if (index >= 0) {
+					serverName = value.substring(0, index);
+					port = Integer.valueOf(value.substring(index + 1, value.length()));
+				} else {
+					serverName = value;
+					String scheme = connector.getScheme();
+					if ("http".equals(scheme))
+						port = 80;
+					else if ("https".equals(scheme))
+						port = 443;
+				}
+				request.setServerName(serverName);
+				request.setServerPort(port);
 			}
 		} // end while
 	}

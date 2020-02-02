@@ -6,6 +6,7 @@ import org.rainbow.catalina.Globals;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.connector.http.HttpConnector;
+import org.rainbow.catalina.core.SimpleEngine;
 import org.rainbow.catalina.core.SimpleHost;
 import org.rainbow.catalina.loaders.LibraryLoader;
 import org.rainbow.catalina.logger.FileLogger;
@@ -28,21 +29,27 @@ public final class Bootstrap {
 	}
 
 	public static void main(String[] args) throws LifecycleException, IOException {
+		String defaultHost = "localhost";
+
 		SimpleHost host = new SimpleHost();
-		host.setName("default");
+		host.setName(defaultHost);
 		host.setLogger(logger);
-		host.start();
+
+		SimpleEngine engine = new SimpleEngine();
+		engine.setName("Simple engine");
+		engine.setDefaultHost(defaultHost);
+		engine.addChild(host);
 
 		HttpConnector connector = new HttpConnector(getPort(args, logger));
+		connector.setContainer(engine);
 
-		connector.setContainer(host);
-
+		engine.start();
 		connector.start();
 
 		// Make the application wait until we press a key.
 		System.in.read();
 
-		host.stop();
+		engine.stop();
 	}
 
 	private static int getPort(String[] args, Logger logger) {

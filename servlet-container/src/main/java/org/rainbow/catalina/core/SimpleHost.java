@@ -139,7 +139,7 @@ public class SimpleHost extends ContainerBase implements Host, Lifecycle {
 	@Override
 	public synchronized void stop() throws LifecycleException {
 		if (!started)
-			throw new LifecycleException(String.format(sm.getString("simpleHost.notStarted"), getName()));
+			throw new LifecycleException(sm.getString("simpleHost.notStarted", getName()));
 
 		started = false;
 
@@ -206,7 +206,7 @@ public class SimpleHost extends ContainerBase implements Host, Lifecycle {
 	@Override
 	public void addChild(Container child) {
 		if (!(child instanceof Context))
-			throw new IllegalStateException(sm.getString("simpleHost.cannotAddChild"));
+			throw new IllegalArgumentException(sm.getString("simpleHost.cannotAddChild"));
 		super.addChild(child);
 	}
 }
