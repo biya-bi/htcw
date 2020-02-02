@@ -19,6 +19,7 @@ import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.Wrapper;
 import org.rainbow.catalina.util.LifecycleSupport;
+import org.rainbow.catalina.util.StringManager;
 
 /**
  * @author biya-bi
@@ -32,7 +33,8 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	private Container container;
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 	private volatile boolean started;
-
+	private StringManager sm = StringManager.getManager(Constants.PACKAGE);
+	
 	public SimpleWrapper() {
 		pipeline.setBasic(new SimpleWrapperValve());
 	}
@@ -173,8 +175,7 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 
 	@Override
 	public void addChild(Container child) {
-		// TODO Auto-generated method stub
-
+		throw new IllegalStateException(sm.getString("SimpleWrapper.cannotAddChild"));
 	}
 
 	@Override
