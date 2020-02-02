@@ -6,16 +6,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.rainbow.catalina.Contained;
-import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Context;
 import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.ValveContext;
 import org.rainbow.catalina.Wrapper;
 
-public class SimpleContextValve implements Valve, Contained {
-
-	private Container container;
+public class SimpleContextValve extends ContainedBase implements Valve {
 
 	@Override
 	public void invoke(HttpServletRequest request, HttpServletResponse response, ValveContext valveContext)
@@ -46,14 +42,6 @@ public class SimpleContextValve implements Valve, Contained {
 
 	public String getInfo() {
 		return null;
-	}
-
-	public Container getContainer() {
-		return container;
-	}
-
-	public void setContainer(Container container) {
-		this.container = container;
 	}
 
 	private void badRequest(String requestURI, HttpServletResponse response) throws IOException {

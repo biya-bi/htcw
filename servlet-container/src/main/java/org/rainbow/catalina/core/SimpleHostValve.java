@@ -9,8 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.rainbow.catalina.Contained;
-import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Context;
 import org.rainbow.catalina.Host;
 import org.rainbow.catalina.Manager;
@@ -23,8 +21,7 @@ import org.rainbow.catalina.util.StringManager;
  * @author biya-bi
  *
  */
-public class SimpleHostValve implements Valve, Contained {
-	private Container container;
+public class SimpleHostValve extends ContainedBase implements Valve {
 	private StringManager sm = StringManager.getManager(Constants.PACKAGE);
 
 	@Override
@@ -52,16 +49,6 @@ public class SimpleHostValve implements Valve, Contained {
 		}
 		// Ask this Context to process this request
 		context.invoke(request, response);
-	}
-
-	@Override
-	public Container getContainer() {
-		return container;
-	}
-
-	@Override
-	public void setContainer(Container container) {
-		this.container = container;
 	}
 
 }
