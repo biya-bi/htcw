@@ -96,4 +96,11 @@ public abstract class ContainerBase implements Container {
 		this.logger = logger;
 	}
 
+	protected void log(String message) {
+		Logger logger = getLogger();
+		if (logger != null) {
+			logger.log(message);
+		}
+	}
+
 }

@@ -34,7 +34,7 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 	private volatile boolean started;
 	private StringManager sm = StringManager.getManager(Constants.PACKAGE);
-	
+
 	public SimpleWrapper() {
 		pipeline.setBasic(new SimpleWrapperValve());
 	}
@@ -175,7 +175,7 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 
 	@Override
 	public void addChild(Container child) {
-		throw new IllegalStateException(sm.getString("SimpleWrapper.cannotAddChild"));
+		throw new IllegalStateException(sm.getString("simpleWrapper.cannotAddChild"));
 	}
 
 	@Override
@@ -196,9 +196,9 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	@Override
 	public synchronized void start() throws LifecycleException {
 		if (started)
-			throw new LifecycleException("Wrapper already started");
+			throw new LifecycleException(sm.getString("simpleWrapper.alreadyStarted"));
 
-		getLogger().log(String.format("Starting wrapper '%s'", getName()));
+		log(String.format(sm.getString("simpleWrapper.starting"), getName()));
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_START_EVENT, null);
@@ -224,9 +224,9 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	@Override
 	public synchronized void stop() throws LifecycleException {
 		if (!started)
-			throw new LifecycleException(String.format("Wrapper '%s' not started", getName()));
+			throw new LifecycleException(String.format(sm.getString("simpleWrapper.notStarted"), getName()));
 
-		getLogger().log(String.format("Stopping wrapper '%s'", getName()));
+		log(String.format(sm.getString("simpleWrapper.stopping"), getName()));
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
