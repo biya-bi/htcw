@@ -3,30 +3,19 @@
  */
 package org.rainbow.catalina.core;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Engine;
 import org.rainbow.catalina.Host;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
-import org.rainbow.catalina.LifecycleListener;
-import org.rainbow.catalina.util.LifecycleSupport;
-import org.rainbow.catalina.util.StringManager;
 
 /**
  * @author biya-bi
  *
  */
-public class SimpleEngine extends ContainerBase implements Engine, Lifecycle {
-	private SimplePipeline pipeline = new SimplePipeline(this);
-	private StringManager sm = StringManager.getManager(Constants.PACKAGE);
-	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
-	private volatile boolean started;
+public class SimpleEngine extends ContainerBase implements Engine {
 	private String defaultHost;
 
 	public SimpleEngine() {
@@ -43,26 +32,6 @@ public class SimpleEngine extends ContainerBase implements Engine, Lifecycle {
 	@Override
 	public void setParent(Container parent) {
 		throw new IllegalStateException(sm.getString("simpleEngine.cannotSetParent"));
-	}
-
-	@Override
-	public void invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		pipeline.invoke(request, response);
-	}
-
-	@Override
-	public void addLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.addLifecycleListener(listener);
-	}
-
-	@Override
-	public LifecycleListener[] findLifecycleListeners() {
-		return lifecycleSupport.findLifecycleListeners();
-	}
-
-	@Override
-	public void removeLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.removeLifecycleListener(listener);
 	}
 
 	@Override

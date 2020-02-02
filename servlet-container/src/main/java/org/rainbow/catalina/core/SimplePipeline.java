@@ -35,7 +35,7 @@ public class SimplePipeline implements Pipeline, Lifecycle {
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 
 	public SimplePipeline(Container container) {
-		setContainer(container);
+		this.container = container;
 	}
 
 	@Override
@@ -71,22 +71,6 @@ public class SimplePipeline implements Pipeline, Lifecycle {
 	public void removeValve(Valve valve) {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public Valve getFirst() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Container getContainer() {
-		return this.container;
-	}
-
-	@Override
-	public void setContainer(Container container) {
-		this.container = container;
 	}
 
 	// This class is copied from org.apache.catalina.core.StandardPipeline class's

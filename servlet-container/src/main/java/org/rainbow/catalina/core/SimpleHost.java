@@ -4,11 +4,6 @@
 package org.rainbow.catalina.core;
 
 import java.io.File;
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Context;
@@ -16,33 +11,19 @@ import org.rainbow.catalina.Globals;
 import org.rainbow.catalina.Host;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
-import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
 import org.rainbow.catalina.Logger;
 import org.rainbow.catalina.Mapper;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
-import org.rainbow.catalina.util.LifecycleSupport;
-import org.rainbow.catalina.util.StringManager;
 
 /**
  * @author biya-bi
  *
  */
-public class SimpleHost extends ContainerBase implements Host, Lifecycle {
-
-	private Pipeline pipeline = new SimplePipeline(this);
-	private StringManager sm = StringManager.getManager(Constants.PACKAGE);
-	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
-	private volatile boolean started;
-
+public class SimpleHost extends ContainerBase implements Host {
 	public SimpleHost() {
 		pipeline.setBasic(new SimpleHostValve());
-	}
-
-	@Override
-	public void invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		pipeline.invoke(request, response);
 	}
 
 	@Override
@@ -75,21 +56,6 @@ public class SimpleHost extends ContainerBase implements Host, Lifecycle {
 		// Return the mapped Context (if any)
 		log(sm.getString("simpleHost.mappedToContext", context.getPath()));
 		return context;
-	}
-
-	@Override
-	public void addLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.addLifecycleListener(listener);
-	}
-
-	@Override
-	public LifecycleListener[] findLifecycleListeners() {
-		return lifecycleSupport.findLifecycleListeners();
-	}
-
-	@Override
-	public void removeLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.removeLifecycleListener(listener);
 	}
 
 	@Override

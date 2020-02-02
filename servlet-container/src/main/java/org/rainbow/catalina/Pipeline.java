@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 public interface Pipeline {
-
 	Valve getBasic();
 
 	void setBasic(Valve valve);
@@ -24,12 +23,6 @@ public interface Pipeline {
 	Valve[] getValves();
 
 	void removeValve(Valve valve);
-
-	Valve getFirst();
-
-	Container getContainer();
-
-	void setContainer(Container container);
 
 	void invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;;
 }

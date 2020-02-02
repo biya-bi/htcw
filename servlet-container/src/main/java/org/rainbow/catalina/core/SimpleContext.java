@@ -9,9 +9,7 @@ import java.util.Map;
 
 import javax.naming.directory.DirContext;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 
 import org.rainbow.catalina.Container;
@@ -19,12 +17,9 @@ import org.rainbow.catalina.Context;
 import org.rainbow.catalina.Globals;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
-import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
 import org.rainbow.catalina.Manager;
 import org.rainbow.catalina.Mapper;
-import org.rainbow.catalina.Pipeline;
-import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.Wrapper;
 import org.rainbow.catalina.config.DeploymentDescriptor;
 import org.rainbow.catalina.config.Servlet;
@@ -43,17 +38,11 @@ import org.rainbow.catalina.deploy.LoginConfig;
 import org.rainbow.catalina.deploy.NamingResources;
 import org.rainbow.catalina.deploy.SecurityConstraint;
 import org.rainbow.catalina.util.CharsetMapper;
-import org.rainbow.catalina.util.LifecycleSupport;
 
-public class SimpleContext extends ContainerBase implements Context, Pipeline, Lifecycle {
-	protected Map<String, Container> children = new HashMap<>();
-	protected SimplePipeline pipeline = new SimplePipeline(this);
-	protected Map<String, String> servletMappings = new HashMap<>();
-	protected Mapper mapper;
-	protected Map<String, Mapper> mappers = new HashMap<>();
-	private Container container;
-	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
-	private volatile boolean started;
+public class SimpleContext extends ContainerBase implements Context {
+	private Map<String, String> servletMappings = new HashMap<>();
+	private Mapper mapper;
+	private Map<String, Mapper> mappers = new HashMap<>();
 	private Manager manager;
 	private String path;
 
@@ -555,10 +544,6 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 		return null;
 	}
 
-	public void invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		pipeline.invoke(request, response);
-	}
-
 	@Override
 	public Container map(HttpServletRequest request, boolean update) {
 		// This method is taken from the map method in
@@ -587,43 +572,6 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 	}
 
-	// method implementations of Pipeline
-	public Valve getBasic() {
-		return pipeline.getBasic();
-	}
-
-	public void setBasic(Valve valve) {
-		pipeline.setBasic(valve);
-	}
-
-	public synchronized void addValve(Valve valve) {
-		pipeline.addValve(valve);
-	}
-
-	public Valve[] getValves() {
-		return pipeline.getValves();
-	}
-
-	public void removeValve(Valve valve) {
-		pipeline.removeValve(valve);
-	}
-
-	@Override
-	public Valve getFirst() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Container getContainer() {
-		return container;
-	}
-
-	@Override
-	public void setContainer(Container container) {
-		this.container = container;
-	}
-
 	private void readDeploymentDescriptor(String contextPath) throws JAXBException, IOException {
 		XmlProcessor<DeploymentDescriptor> processor = new XmlProcessor<>(DeploymentDescriptor.class);
 
@@ -649,21 +597,6 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 				addServletMapping(mapping.getUrlPattern(), mapping.getServletName());
 			}
 		}
-	}
-
-	@Override
-	public void addLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.addLifecycleListener(listener);
-	}
-
-	@Override
-	public LifecycleListener[] findLifecycleListeners() {
-		return lifecycleSupport.findLifecycleListeners();
-	}
-
-	@Override
-	public void removeLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.removeLifecycleListener(listener);
 	}
 
 	@Override

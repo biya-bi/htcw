@@ -13,27 +13,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
-import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
-import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
 import org.rainbow.catalina.Wrapper;
-import org.rainbow.catalina.util.LifecycleSupport;
-import org.rainbow.catalina.util.StringManager;
 
 /**
  * @author biya-bi
  *
  */
-public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, Lifecycle {
+public class SimpleWrapper extends ContainerBase implements Wrapper {
 	// The servlet instance
 	private Servlet instance;
 	private String servletClass;
-	private Pipeline pipeline = new SimplePipeline(this);
-	private Container container;
-	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
-	private volatile boolean started;
-	private StringManager sm = StringManager.getManager(Constants.PACKAGE);
 
 	public SimpleWrapper() {
 		pipeline.setBasic(new SimpleWrapperValve());
@@ -70,10 +61,6 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	public void unload() throws ServletException {
 		// TODO Auto-generated method stub
 
-	}
-
-	public synchronized void addValve(Valve valve) {
-		pipeline.addValve(valve);
 	}
 
 	private Servlet loadServlet() throws ServletException {
@@ -143,22 +130,6 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	}
 
 	@Override
-	public Valve getFirst() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Container getContainer() {
-		return container;
-	}
-
-	@Override
-	public void setContainer(Container container) {
-		this.container = container;
-	}
-
-	@Override
 	public void invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		pipeline.invoke(request, response);
 	}
@@ -176,21 +147,6 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	@Override
 	public void addChild(Container child) {
 		throw new IllegalStateException(sm.getString("simpleWrapper.cannotAddChild"));
-	}
-
-	@Override
-	public void addLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.addLifecycleListener(listener);
-	}
-
-	@Override
-	public LifecycleListener[] findLifecycleListeners() {
-		return lifecycleSupport.findLifecycleListeners();
-	}
-
-	@Override
-	public void removeLifecycleListener(LifecycleListener listener) {
-		lifecycleSupport.removeLifecycleListener(listener);
 	}
 
 	@Override
