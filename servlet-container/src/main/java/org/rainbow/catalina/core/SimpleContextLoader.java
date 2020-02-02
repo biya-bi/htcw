@@ -3,7 +3,7 @@
  */
 package org.rainbow.catalina.core;
 
-import org.rainbow.catalina.connector.http.Constants;
+import org.rainbow.catalina.Globals;
 
 /**
  * @author biya-bi
@@ -18,6 +18,6 @@ public class SimpleContextLoader extends SimpleLoader {
 
 	@Override
 	protected String getPath() {
-		return Constants.WEB_APPS + contextPath;
+		return Globals.WEB_APPS + contextPath;
 	}
 }

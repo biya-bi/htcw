@@ -1,12 +1,12 @@
 package org.rainbow.catalina.loaders;
 
-import org.rainbow.catalina.connector.http.Constants;
-
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import org.rainbow.catalina.Globals;
 
 public class LibraryLoader {
     /**
@@ -31,6 +31,6 @@ public class LibraryLoader {
     }
 
     private File[] getJars() {
-        return new File(Constants.LIB_DIR).listFiles((dir, name) -> name.toLowerCase().endsWith(".jar"));
+        return new File(Globals.LIB_DIR).listFiles((dir, name) -> name.toLowerCase().endsWith(".jar"));
     }
 }

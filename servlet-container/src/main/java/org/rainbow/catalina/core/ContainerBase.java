@@ -33,6 +33,8 @@ public abstract class ContainerBase implements Container {
 
 	@Override
 	public void setLoader(Loader loader) {
+		if (loader.getContainer() != this)
+			loader.setContainer(this);
 		this.loader = loader;
 	}
 

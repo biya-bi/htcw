@@ -16,11 +16,12 @@ import javax.xml.bind.JAXBException;
 
 import org.rainbow.catalina.Container;
 import org.rainbow.catalina.Context;
+import org.rainbow.catalina.Globals;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
-import org.rainbow.catalina.Logger;
+import org.rainbow.catalina.Manager;
 import org.rainbow.catalina.Mapper;
 import org.rainbow.catalina.Pipeline;
 import org.rainbow.catalina.Valve;
@@ -29,7 +30,6 @@ import org.rainbow.catalina.config.DeploymentDescriptor;
 import org.rainbow.catalina.config.Servlet;
 import org.rainbow.catalina.config.ServletMapping;
 import org.rainbow.catalina.config.XmlProcessor;
-import org.rainbow.catalina.connector.http.Constants;
 import org.rainbow.catalina.deploy.ApplicationParameter;
 import org.rainbow.catalina.deploy.ContextEjb;
 import org.rainbow.catalina.deploy.ContextEnvironment;
@@ -54,6 +54,8 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 	private Container container;
 	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 	private volatile boolean started;
+	private Manager manager;
+	private String path;
 
 	public SimpleContext() {
 		pipeline.setBasic(new SimpleContextValve());
@@ -137,10 +139,11 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 	}
 
 	public String getPath() {
-		return null;
+		return path;
 	}
 
 	public void setPath(String path) {
+		this.path = path;
 	}
 
 	public String getPublicId() {
@@ -625,7 +628,7 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 		XmlProcessor<DeploymentDescriptor> processor = new XmlProcessor<>(DeploymentDescriptor.class);
 
 		String deploymentDescriptorPath = new File(
-				Constants.WEB_APPS + contextPath + File.separator + "WEB-INF" + File.separator + "web.xml")
+				Globals.WEB_APPS + contextPath + File.separator + "WEB-INF" + File.separator + "web.xml")
 						.getCanonicalPath();
 
 		DeploymentDescriptor deploymentDescriptor = processor.unmarshall(deploymentDescriptorPath);
@@ -668,12 +671,15 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 		if (started)
 			throw new LifecycleException("SimpleContext has already started");
 
-		Logger logger = getLogger();
-		if (logger instanceof Lifecycle) {
-			((Lifecycle) logger).start();
-		}
+		started = true;
 
-		final String contextPath = "/" + getName();
+		// Notify our interested LifecycleListeners
+		lifecycleSupport.fireLifecycleEvent(BEFORE_START_EVENT, null);
+
+		// Notify our interested LifecycleListeners
+		lifecycleSupport.fireLifecycleEvent(START_EVENT, null);
+
+		final String contextPath = File.separator + getName();
 
 		setLoader(new SimpleContextLoader(contextPath));
 
@@ -682,11 +688,6 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 		} catch (JAXBException | IOException e) {
 			throw new LifecycleException(e);
 		}
-
-		// Notify our interested LifecycleListeners
-		lifecycleSupport.fireLifecycleEvent(BEFORE_START_EVENT, null);
-
-		started = true;
 
 		// Start our subordinate components, if any
 		Loader loader = getLoader();
@@ -702,9 +703,6 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 		// if any
 		if (pipeline instanceof Lifecycle)
 			((Lifecycle) pipeline).start();
-
-		// Notify our interested LifecycleListeners
-		lifecycleSupport.fireLifecycleEvent(START_EVENT, null);
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(AFTER_START_EVENT, null);
@@ -738,12 +736,17 @@ public class SimpleContext extends ContainerBase implements Context, Pipeline, L
 			((Lifecycle) loader).stop();
 		}
 
-		Logger logger = getLogger();
-		if (logger instanceof Lifecycle) {
-			((Lifecycle) logger).stop();
-		}
-
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(AFTER_STOP_EVENT, null);
+	}
+
+	@Override
+	public Manager getManager() {
+		return manager;
+	}
+
+	@Override
+	public void setManager(Manager manager) {
+		this.manager = manager;
 	}
 }

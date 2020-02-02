@@ -10,12 +10,12 @@ import java.net.URLClassLoader;
 import java.net.URLStreamHandler;
 
 import org.rainbow.catalina.Container;
+import org.rainbow.catalina.Globals;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Loader;
 import org.rainbow.catalina.Logger;
-import org.rainbow.catalina.connector.http.Constants;
 import org.rainbow.catalina.util.LifecycleSupport;
 
 /**
@@ -50,7 +50,7 @@ public class SimpleLoader implements Loader, Lifecycle {
 	}
 
 	protected String getPath() {
-		return Constants.WEB_APPS;
+		return Globals.WEB_APPS;
 	}
 
 	@Override

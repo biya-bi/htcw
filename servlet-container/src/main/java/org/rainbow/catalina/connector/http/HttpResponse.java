@@ -1,16 +1,29 @@
 package org.rainbow.catalina.connector.http;
 
 
-import org.rainbow.catalina.connector.ResponseStream;
-import org.rainbow.catalina.connector.ResponseWriter;
-import org.rainbow.catalina.util.CookieTools;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
+
+import org.rainbow.catalina.Globals;
+import org.rainbow.catalina.connector.ResponseStream;
+import org.rainbow.catalina.connector.ResponseWriter;
+import org.rainbow.catalina.util.CookieTools;
 
 public class HttpResponse implements HttpServletResponse {
 
@@ -293,7 +306,7 @@ public class HttpResponse implements HttpServletResponse {
         byte[] bytes = new byte[BUFFER_SIZE];
         FileInputStream fis = null;
         try {
-            File file = new File(Constants.WEB_APPS, request.getRequestURI());
+            File file = new File(Globals.WEB_APPS, request.getRequestURI());
             if (file.exists()) {
                 String header = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/html\r\n" +
