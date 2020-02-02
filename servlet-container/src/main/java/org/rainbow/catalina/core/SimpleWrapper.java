@@ -196,9 +196,9 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	@Override
 	public synchronized void start() throws LifecycleException {
 		if (started)
-			throw new LifecycleException(sm.getString("simpleWrapper.alreadyStarted"));
+			throw new LifecycleException(sm.getString("simpleWrapper.alreadyStarted", getName()));
 
-		log(String.format(sm.getString("simpleWrapper.starting"), getName()));
+		log(sm.getString("simpleWrapper.starting", getName()));
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_START_EVENT, null);
@@ -224,9 +224,9 @@ public class SimpleWrapper extends ContainerBase implements Wrapper, Pipeline, L
 	@Override
 	public synchronized void stop() throws LifecycleException {
 		if (!started)
-			throw new LifecycleException(String.format(sm.getString("simpleWrapper.notStarted"), getName()));
+			throw new LifecycleException(sm.getString("simpleWrapper.notStarted", getName()));
 
-		log(String.format(sm.getString("simpleWrapper.stopping"), getName()));
+		log(sm.getString("simpleWrapper.stopping", getName()));
 
 		// Notify our interested LifecycleListeners
 		lifecycleSupport.fireLifecycleEvent(BEFORE_STOP_EVENT, null);

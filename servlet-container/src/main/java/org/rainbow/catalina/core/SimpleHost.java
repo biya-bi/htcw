@@ -69,11 +69,11 @@ public class SimpleHost extends ContainerBase implements Host, Lifecycle {
 		}
 		// Complain if no Context has been selected
 		if (context == null) {
-			log(String.format(sm.getString("simpleHost.mappingError"), uri, getName()));
+			log(sm.getString("simpleHost.mappingError", uri, getName()));
 			return null;
 		}
 		// Return the mapped Context (if any)
-		log(String.format(sm.getString("simpleHost.mappedToContext"), context.getPath()));
+		log(sm.getString("simpleHost.mappedToContext", context.getPath()));
 		return context;
 	}
 
