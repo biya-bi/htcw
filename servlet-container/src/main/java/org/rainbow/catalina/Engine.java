@@ -15,4 +15,8 @@ public interface Engine extends Container {
 	void setDefaultHost(String defaultHost);
 
 	Host map(HttpServletRequest request, boolean update);
+
+	Service getService();
+
+	void setService(Service service);
 }

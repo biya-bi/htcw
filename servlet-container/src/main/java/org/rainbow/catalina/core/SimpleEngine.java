@@ -10,6 +10,7 @@ import org.rainbow.catalina.Engine;
 import org.rainbow.catalina.Host;
 import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
+import org.rainbow.catalina.Service;
 
 /**
  * @author biya-bi
@@ -17,6 +18,7 @@ import org.rainbow.catalina.LifecycleException;
  */
 public class SimpleEngine extends ContainerBase implements Engine {
 	private String defaultHost;
+	private Service service;
 
 	public SimpleEngine() {
 		pipeline.setBasic(new SimpleEngineValve());
@@ -111,6 +113,16 @@ public class SimpleEngine extends ContainerBase implements Engine {
 		if (host != null)
 			return host;
 		return (Host) findChild(getDefaultHost());
+	}
+
+	@Override
+	public Service getService() {
+		return service;
+	}
+
+	@Override
+	public void setService(Service service) {
+		this.service = service;
 	}
 
 }

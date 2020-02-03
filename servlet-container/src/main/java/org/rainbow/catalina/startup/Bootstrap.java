@@ -2,12 +2,19 @@ package org.rainbow.catalina.startup;
 
 import java.io.IOException;
 
+import org.rainbow.catalina.Engine;
 import org.rainbow.catalina.Globals;
+import org.rainbow.catalina.Host;
+import org.rainbow.catalina.Lifecycle;
 import org.rainbow.catalina.LifecycleException;
 import org.rainbow.catalina.Logger;
+import org.rainbow.catalina.Server;
+import org.rainbow.catalina.Service;
 import org.rainbow.catalina.connector.http.HttpConnector;
 import org.rainbow.catalina.core.SimpleEngine;
 import org.rainbow.catalina.core.SimpleHost;
+import org.rainbow.catalina.core.SimpleServer;
+import org.rainbow.catalina.core.SimpleService;
 import org.rainbow.catalina.loaders.LibraryLoader;
 import org.rainbow.catalina.logger.FileLogger;
 
@@ -31,25 +38,29 @@ public final class Bootstrap {
 	public static void main(String[] args) throws LifecycleException, IOException {
 		String defaultHost = "localhost";
 
-		SimpleHost host = new SimpleHost();
+		Host host = new SimpleHost();
 		host.setName(defaultHost);
 		host.setLogger(logger);
 
-		SimpleEngine engine = new SimpleEngine();
-		engine.setName("Simple engine");
+		Engine engine = new SimpleEngine();
+		engine.setName("Catalina");
 		engine.setDefaultHost(defaultHost);
 		engine.addChild(host);
 
 		HttpConnector connector = new HttpConnector(getPort(args, logger));
-		connector.setContainer(engine);
 
-		engine.start();
-		connector.start();
+		Service service = new SimpleService();
+		service.setContainer(engine);
+		service.addConnector(connector);
 
-		// Make the application wait until we press a key.
-		System.in.read();
+		Server server = new SimpleServer();
+		server.addService(service);
+		server.setPort(8005);
+		server.setShutdown("SHUTDOWN");
 
-		engine.stop();
+		server.initialize();
+		((Lifecycle) server).start();
+		server.await();
 	}
 
 	private static int getPort(String[] args, Logger logger) {

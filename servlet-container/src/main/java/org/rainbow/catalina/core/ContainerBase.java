@@ -34,11 +34,11 @@ public abstract class ContainerBase implements Container, Lifecycle, Pipeline {
 	private Logger logger;
 	private Map<String, Container> children = new HashMap<>();
 	protected volatile boolean started;
-	
+
 	protected LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
 	protected Pipeline pipeline = new SimplePipeline(this);
-	protected static StringManager sm = StringManager.getManager(Constants.PACKAGE);
-	
+	protected StringManager sm = StringManager.getManager(Constants.PACKAGE);
+
 	@Override
 	public Loader getLoader() {
 		if (loader != null)

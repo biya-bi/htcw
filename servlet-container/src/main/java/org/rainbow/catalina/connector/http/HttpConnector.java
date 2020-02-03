@@ -8,18 +8,24 @@ import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.rainbow.catalina.Connector;
 import org.rainbow.catalina.Container;
+import org.rainbow.catalina.Lifecycle;
+import org.rainbow.catalina.LifecycleException;
+import org.rainbow.catalina.LifecycleListener;
 import org.rainbow.catalina.Logger;
+import org.rainbow.catalina.Service;
+import org.rainbow.catalina.util.LifecycleSupport;
 import org.rainbow.catalina.util.StringManager;
 
-public class HttpConnector implements Runnable {
+public class HttpConnector implements Runnable, Connector, Lifecycle {
 	private boolean stopped;
 	private final String scheme = "http";
 	private int port;
 
 	private Stack<HttpProcessor> processors = new Stack<>();
 
-	protected int minProcessors = 5;
+	private int minProcessors = 5;
 	private int maxProcessors = 20;
 	private int curProcessors;
 
@@ -28,6 +34,9 @@ public class HttpConnector implements Runnable {
 	private Container container;
 
 	private ExecutorService executor = Executors.newCachedThreadPool();
+	private Service service;
+	private LifecycleSupport lifecycleSupport = new LifecycleSupport(this);
+	private ServerSocket serverSocket;
 
 	public HttpConnector(int port) {
 		this.port = port;
@@ -36,8 +45,6 @@ public class HttpConnector implements Runnable {
 	@Override
 	public void run() {
 		createProcessors();
-
-		ServerSocket serverSocket = null;
 
 		try {
 			serverSocket = new ServerSocket(port, maxProcessors, InetAddress.getByName("127.0.0.1"));
@@ -74,11 +81,6 @@ public class HttpConnector implements Runnable {
 		}
 	}
 
-	public void start() {
-		Thread thread = new Thread(this);
-		thread.start();
-	}
-
 	public String getScheme() {
 		return scheme;
 	}
@@ -112,10 +114,12 @@ public class HttpConnector implements Runnable {
 		return null;
 	}
 
+	@Override
 	public Container getContainer() {
 		return container;
 	}
 
+	@Override
 	public void setContainer(Container container) {
 		this.container = container;
 	}
@@ -129,5 +133,56 @@ public class HttpConnector implements Runnable {
 
 		if (logger != null)
 			logger.log(message, t);
+	}
+
+	@Override
+	public Service getService() {
+		return service;
+	}
+
+	@Override
+	public void setService(Service service) {
+		this.service = service;
+	}
+
+	@Override
+	public void initialize() throws LifecycleException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addLifecycleListener(LifecycleListener listener) {
+		lifecycleSupport.addLifecycleListener(listener);
+	}
+
+	@Override
+	public LifecycleListener[] findLifecycleListeners() {
+		return lifecycleSupport.findLifecycleListeners();
+	}
+
+	@Override
+	public void removeLifecycleListener(LifecycleListener listener) {
+		lifecycleSupport.removeLifecycleListener(listener);
+	}
+
+	@Override
+	public void start() throws LifecycleException {
+		Thread thread = new Thread(this);
+		thread.start();
+	}
+
+	@Override
+	public void stop() throws LifecycleException {
+		stopped = true;
+
+		if (serverSocket != null) {
+			try {
+				serverSocket.close();
+			} catch (IOException e) {
+				log(sm.getString("ioError"), e);
+				System.exit(1);
+			}
+		}
 	}
 }
